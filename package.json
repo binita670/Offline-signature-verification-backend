@@ -11,6 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "alert": "^5.0.10",
+    "alert-node": "^5.0.3",
+    "alertifyjs": "^1.13.1",
     "dotenv": "^14.3.2",
     "express": "^4.17.2",
     "mongoose": "^6.0.8",

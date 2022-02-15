@@ -7,7 +7,23 @@
     -webkit-animation: spin 2s linear infinite; /* Safari */
     animation: spin 2s linear infinite;
     display: none;
+    align-content: center;
+    margin-top: 20px;
 }
+
+#loader{
+    margin-top: 20px;
+}
+
+.test_card{
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+.train_button{
+    margin-bottom: 10px;
+}
+
 
 /* Safari */
 @-webkit-keyframes spin {

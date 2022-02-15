@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
     modelSavePath: { type: String },
     augment: { type: Boolean, default: true },
     accuracy: { type: Number },
+    training: { type: Boolean, default: false},
     testResults: [
         {
             testPath: {type: String},

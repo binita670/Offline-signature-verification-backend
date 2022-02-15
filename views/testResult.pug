@@ -5,7 +5,12 @@ block content
         .card-body
             .card-title 
                 p.display-6  #{user.name}  Signature Test Results
-                p=` Training Accuracy: ${user.accuracy * 100} %`
+                - if(!user.accuracy)
+                    p Training Accuracy not availabe as you have not trained your signature.
+                    a(href= `/user/${user._id}`)
+                        button.btn.btn-info.train_button Train
+                - else
+                    p=` Training Accuracy: ${user.accuracy * 100} %`
                 table.table.table-striped
                     thead
                     tr

@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 const slugify = require("slugify");
 const User = require("./models/User");
+const alert = require("alert-node");
 
 dotenv.config({ path: './config.env' });
 
@@ -63,9 +64,12 @@ app.use(express.static('./public'));
 app.use("/static", express.static('./images'));
 app.set('view engine', 'pug');
 
-app.post("/run-script", (req, res, next) => {
+app.post("/run-script", async(req, res, next) => {
     const trainPath = req.body.trainPath;
     const name = req.body.name;
+    await User.findOneAndUpdate({name: name, trainPath: trainPath}, {
+        training: true
+    });
     const { spawn } = require('child_process');
     const pyProg = spawn('python', ['./scripts/train.py', trainPath, name, "train"]);
 
@@ -83,7 +87,7 @@ app.post("/run-script", (req, res, next) => {
     });
 
     pyProg.stdout.on('end', function(data) {
-        res.end('Training completed!');
+        res.redirect(`/`);
     });
 
     pyProg.stderr.on('data', function(data) {
@@ -91,19 +95,20 @@ app.post("/run-script", (req, res, next) => {
     });
 });
 
-app.post("/test", uploadTest.single('image'), (req, res) => {
+app.post("/test", uploadTest.single('image'), async(req, res) => {
     const modelSavePath = req.body.modelSavePath;
+    const user = await User.findOne({modelSavePath: modelSavePath});
     const testPath = "./" + req.file.path;
+    console.log(testPath);
     const { spawn } = require('child_process');
     const pyProg = spawn('python', ['./scripts/train.py', testPath, modelSavePath, "test"]);
 
-    pyProg.stdout.on('data', async function(data) {
+    pyProg.stdout.on('data',  async function(data) {
         console.log("LOGGING DIRECTLY FROM SCRIPT ", data.toString('utf-8'));
         let responseData = data.toString('utf-8');
         if(responseData.includes("Test-Summary: ")) {
             responseData = responseData.split("Test-Summary: ")[1];
             let jsonData = JSON.parse(responseData);
-            const user = await User.findOne({modelSavePath: modelSavePath});
             let newTestResult = { testPath: testPath, testAccuracy: jsonData.test_accuracy };
             if(!user.testResults) {
                 user.testResults = [];
@@ -113,8 +118,9 @@ app.post("/test", uploadTest.single('image'), (req, res) => {
         }
     });
 
-    pyProg.stdout.on('end', function(data) {
-        res.end('Testing completed!');
+    pyProg.stdout.on('end', function() {
+        //alert("Testing Completed!");
+        res.redirect(`/userResult/${user._id}`);
     });
 
     pyProg.stderr.on('data', function(data) {
